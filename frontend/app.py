@@ -43,7 +43,7 @@ if st.button("Analyze"):
         with st.spinner("Analyzing business data..."):
 
             response = requests.post(
-                "http://127.0.0.1:8000/analyze",
+                "https://business-decision-intelligence-system.onrender.com/analyze",
                 files={
                     "file": uploaded_file
                 },
