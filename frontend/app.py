@@ -4,7 +4,7 @@ import requests
 import streamlit as st
 
 BACKEND_URL = os.getenv(
-    "BACKEND_URL", "https://business-decision-intelligence-system.onrender.com/analyze"
+    "BACKEND_URL", "http://127.0.0.1:8000/analyze"
 )
 
 
@@ -86,5 +86,4 @@ if st.button("Analyze"):
                     st.image(full_chart_url, width=750)
 
             else:
-
-                st.error(result["error"])
+                st.error(result.get("error", "Unknown error occurred"))

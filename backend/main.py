@@ -13,7 +13,7 @@ from charts import generate_chart
 
 app = FastAPI(title="AI-Powered Business Decision Intelligence System")
 
-
+os.makedirs("../charts", exist_ok=True)
 app.mount("/charts", StaticFiles(directory="../charts"), name="charts")
 
 
