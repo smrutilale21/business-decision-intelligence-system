@@ -1,59 +1,62 @@
 from dotenv import load_dotenv
+
 from langchain_openai import ChatOpenAI
 
 from models import DecisionResponse
-from prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
-from tools import get_schema, get_summary, analyze_question
+
+from prompts import SYSTEM_PROMPT
+
+from tools import analyze_data
 
 load_dotenv()
+
 
 llm = ChatOpenAI(
     model="gpt-4o-mini",
     temperature=0
 )
 
-structured_llm = llm.with_structured_output(DecisionResponse)
+
+structured_llm = llm.with_structured_output(
+    DecisionResponse
+)
 
 
+def run_business_analysis(
 
-def run_business_analysis(df, question: str):
+    df,
 
-    schema = get_schema(df)
-    summary = get_summary(df)
-    analysis_result = analyze_question(df, question)
+    question,
 
-    prompt = USER_PROMPT_TEMPLATE.format(
-        question=question,
-        schema=schema,
-        summary=summary,
-        analysis_result=analysis_result
-    )
+    retrieved_context=""
 
-    try:
+):
 
-        response = structured_llm.invoke([
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ])
+    dataframe_insights = analyze_data(df, question)
 
-        return response.model_dump()
+    prompt = f"""
+    User Question:
+    {question}
 
-    except Exception as e:
+    Dataframe Insights:
+    {dataframe_insights}
 
-        return {
-            "business_problem": "LLM processing failed",
-            "data_insights": [str(analysis_result)],
-            "probable_causes": [str(e)],
-            "recommendations": [
-                "Check dataset structure",
-                "Try simpler business question"
-            ],
-            "priority": "Medium",
-            "confidence": "Low"
+    Retrieved Business Context:
+    {retrieved_context}
+    """
+
+    response = structured_llm.invoke([
+
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT
+        },
+
+        {
+            "role": "user",
+            "content": prompt
         }
+
+    ])
+
+    return response.model_dump()

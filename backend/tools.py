@@ -1,101 +1,144 @@
-import pandas as pd
+from schema_detector import detect_business_schema
 
 
-def get_schema(df: pd.DataFrame) -> dict:
-    return {
-        "rows": int(df.shape[0]),
-        "columns": int(df.shape[1]),
-        "column_names": list(df.columns),
-        "data_types": df.dtypes.astype(str).to_dict(),
-        "missing_values": df.isnull().sum().to_dict(),
-    }
+def determine_aggregation(question):
+
+    question = question.lower()
+
+    if any(
+        keyword in question
+        for keyword in [
+            "average",
+            "avg",
+            "mean"
+        ]
+    ):
+        return "mean"
+
+    if any(
+        keyword in question
+        for keyword in [
+            "count",
+            "number of",
+            "total orders"
+        ]
+    ):
+        return "count"
+
+    return "sum"
 
 
+def determine_chart_type(
+    question,
+    datetime_cols,
+    dimension_col
+):
 
-def get_summary(df: pd.DataFrame) -> dict:
+    question = question.lower()
 
-    numeric_df = df.select_dtypes(include="number")
+    if any(
+        keyword in question
+        for keyword in [
+            "trend",
+            "over time",
+            "monthly",
+            "yearly"
+        ]
+    ) and datetime_cols:
 
-    return {
-        "numeric_summary": numeric_df.describe().to_dict()
-        if not numeric_df.empty else {}
-    }
+        return "line"
+
+    if any(
+        keyword in question
+        for keyword in [
+            "distribution",
+            "share",
+            "percentage"
+        ]
+    ):
+        return "pie"
+
+    if dimension_col:
+        return "bar"
+
+    return "line"
 
 
+def analyze_data(df, question):
 
-def analyze_question(df: pd.DataFrame, question: str) -> dict:
+    schema = detect_business_schema(
+        df,
+        question
+    )
 
-    q = question.lower()
+    metric_col = schema["metric_column"]
 
-    numeric_cols = df.select_dtypes(include="number").columns.tolist()
-    categorical_cols = df.select_dtypes(exclude="number").columns.tolist()
+    dimension_col = schema["dimension_column"]
 
-    result = {}
+    datetime_cols = schema["datetime_columns"]
 
-    if "highest" in q or "top" in q:
+    aggregation = determine_aggregation(
+        question
+    )
 
-        if numeric_cols and categorical_cols:
+    chart_type = determine_chart_type(
+        question,
+        datetime_cols,
+        dimension_col
+    )
 
-            category_col = categorical_cols[0]
-            value_col = numeric_cols[0]
+    insights = {}
+
+    if metric_col and dimension_col:
+
+        if aggregation == "sum":
 
             grouped = (
-                df.groupby(category_col)[value_col]
+                df.groupby(dimension_col)[metric_col]
                 .sum()
                 .sort_values(ascending=False)
             )
 
-            top_category = grouped.idxmax()
-            top_value = grouped.max()
-
-            result["analysis_type"] = "highest_sales"
-            result["result"] = {
-                "top_category": top_category,
-                "sales": float(top_value)
-            }
-
-            return result
-
-    if "lowest" in q or "underperform" in q:
-
-        if numeric_cols and categorical_cols:
-
-            category_col = categorical_cols[0]
-            value_col = numeric_cols[0]
+        elif aggregation == "mean":
 
             grouped = (
-                df.groupby(category_col)[value_col]
-                .sum()
-                .sort_values(ascending=True)
+                df.groupby(dimension_col)[metric_col]
+                .mean()
+                .sort_values(ascending=False)
             )
 
-            low_category = grouped.idxmin()
-            low_value = grouped.min()
+        elif aggregation == "count":
 
-            result["analysis_type"] = "lowest_sales"
-            result["result"] = {
-                "lowest_category": low_category,
-                "sales": float(low_value)
-            }
+            grouped = (
+                df.groupby(dimension_col)[metric_col]
+                .count()
+                .sort_values(ascending=False)
+            )
 
-            return result
+        insights["top_performers"] = (
+            grouped.head(5).to_dict()
+        )
 
-    if "total" in q or "sum" in q:
+        insights["bottom_performers"] = (
+            grouped.tail(5).to_dict()
+        )
 
-        totals = {
-            col: float(df[col].sum())
-            for col in numeric_cols
-        }
+        insights["total_metric"] = (
+            float(df[metric_col].sum())
+        )
 
-        result["analysis_type"] = "total_values"
-        result["result"] = totals
+        insights["average_metric"] = (
+            float(df[metric_col].mean())
+        )
 
-        return result
+    insights["schema"] = schema
 
-    result["analysis_type"] = "general_summary"
-    result["result"] = {
-        "schema": get_schema(df),
-        "summary": get_summary(df)
-    }
+    insights["chart_type"] = chart_type
 
-    return result
+    insights["aggregation"] = aggregation
+
+    insights["metric_column"] = metric_col
+
+    insights["dimension_column"] = dimension_col
+
+    return insights
