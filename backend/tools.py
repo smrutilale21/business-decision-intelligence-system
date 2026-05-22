@@ -5,57 +5,30 @@ def determine_aggregation(question):
 
     question = question.lower()
 
-    if any(
-        keyword in question
-        for keyword in [
-            "average",
-            "avg",
-            "mean"
-        ]
-    ):
+    if any(keyword in question for keyword in ["average", "avg", "mean"]):
         return "mean"
 
-    if any(
-        keyword in question
-        for keyword in [
-            "count",
-            "number of",
-            "total orders"
-        ]
-    ):
+    if any(keyword in question for keyword in ["count", "number of", "total orders"]):
         return "count"
 
     return "sum"
 
 
-def determine_chart_type(
-    question,
-    datetime_cols,
-    dimension_col
-):
+def determine_chart_type(question, datetime_cols, dimension_col):
 
     question = question.lower()
 
-    if any(
-        keyword in question
-        for keyword in [
-            "trend",
-            "over time",
-            "monthly",
-            "yearly"
-        ]
-    ) and datetime_cols:
+    if (
+        any(
+            keyword in question
+            for keyword in ["trend", "over time", "monthly", "yearly"]
+        )
+        and datetime_cols
+    ):
 
         return "line"
 
-    if any(
-        keyword in question
-        for keyword in [
-            "distribution",
-            "share",
-            "percentage"
-        ]
-    ):
+    if any(keyword in question for keyword in ["distribution", "share", "percentage"]):
         return "pie"
 
     if dimension_col:
@@ -66,10 +39,7 @@ def determine_chart_type(
 
 def analyze_data(df, question):
 
-    schema = detect_business_schema(
-        df,
-        question
-    )
+    schema = detect_business_schema(df, question)
 
     metric_col = schema["metric_column"]
 
@@ -77,15 +47,9 @@ def analyze_data(df, question):
 
     datetime_cols = schema["datetime_columns"]
 
-    aggregation = determine_aggregation(
-        question
-    )
+    aggregation = determine_aggregation(question)
 
-    chart_type = determine_chart_type(
-        question,
-        datetime_cols,
-        dimension_col
-    )
+    chart_type = determine_chart_type(question, datetime_cols, dimension_col)
 
     insights = {}
 
@@ -94,9 +58,7 @@ def analyze_data(df, question):
         if aggregation == "sum":
 
             grouped = (
-                df.groupby(dimension_col)[metric_col]
-                .sum()
-                .sort_values(ascending=False)
+                df.groupby(dimension_col)[metric_col].sum().sort_values(ascending=False)
             )
 
         elif aggregation == "mean":
@@ -115,21 +77,13 @@ def analyze_data(df, question):
                 .sort_values(ascending=False)
             )
 
-        insights["top_performers"] = (
-            grouped.head(5).to_dict()
-        )
+        insights["top_performers"] = grouped.head(5).to_dict()
 
-        insights["bottom_performers"] = (
-            grouped.tail(5).to_dict()
-        )
+        insights["bottom_performers"] = grouped.tail(5).to_dict()
 
-        insights["total_metric"] = (
-            float(df[metric_col].sum())
-        )
+        insights["total_metric"] = float(df[metric_col].sum())
 
-        insights["average_metric"] = (
-            float(df[metric_col].mean())
-        )
+        insights["average_metric"] = float(df[metric_col].mean())
 
     insights["schema"] = schema
 

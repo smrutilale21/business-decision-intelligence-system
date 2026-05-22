@@ -1,38 +1,26 @@
-import streamlit as st
-import requests
-
 import os
 
+import requests
+import streamlit as st
+
 BACKEND_URL = os.getenv(
-    "BACKEND_URL",
-    "https://business-decision-intelligence-system.onrender.com/analyze"
+    "BACKEND_URL", "https://business-decision-intelligence-system.onrender.com/analyze"
 )
 
 
 st.set_page_config(
-    page_title="AI-Powered Business Decision Intelligence System",
-    layout="wide"
+    page_title="AI-Powered Business Decision Intelligence System", layout="wide"
 )
 
 
-st.title(
-    "📊 AI-Powered Business Decision Intelligence System"
-)
+st.title("📊 AI-Powered Business Decision Intelligence System")
 
 
-csv_file = st.file_uploader(
-    "Upload CSV File",
-    type=["csv"]
-)
+csv_file = st.file_uploader("Upload CSV File", type=["csv"])
 
-pdf_file = st.file_uploader(
-    "Upload PDF Report (Optional)",
-    type=["pdf"]
-)
+pdf_file = st.file_uploader("Upload PDF Report (Optional)", type=["pdf"])
 
-question = st.text_input(
-    "Ask Business Question"
-)
+question = st.text_input("Ask Business Question")
 
 
 if st.button("Analyze"):
@@ -41,22 +29,13 @@ if st.button("Analyze"):
 
         with st.spinner("Analyzing business data..."):
 
-            files = {
-                "csv_file": csv_file
-            }
+            files = {"csv_file": csv_file}
 
             if pdf_file:
                 files["pdf_file"] = pdf_file
 
             response = requests.post(
-
-                BACKEND_URL,
-
-                files=files,
-
-                data={
-                    "question": question
-                }
+                BACKEND_URL, files=files, data={"question": question}
             )
 
             result = response.json()
@@ -101,14 +80,10 @@ if st.button("Analyze"):
                     st.subheader("Generated Chart")
 
                     full_chart_url = (
-                        BACKEND_URL.replace("/analyze", "")
-                        + result["chart_url"]
+                        BACKEND_URL.replace("/analyze", "") + result["chart_url"]
                     )
 
-                    st.image(
-                        full_chart_url,
-                        width=750
-                    )
+                    st.image(full_chart_url, width=750)
 
             else:
 

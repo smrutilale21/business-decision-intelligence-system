@@ -1,35 +1,18 @@
 import pandas as pd
 
-
 DERIVED_METRICS = {
-
     "profit": {
         "required_keywords": {
-            "revenue": [
-                "revenue",
-                "sales",
-                "income"
-            ],
-            "cost": [
-                "cost",
-                "expense"
-            ]
+            "revenue": ["revenue", "sales", "income"],
+            "cost": ["cost", "expense"],
         }
     },
-
     "margin": {
         "required_keywords": {
-            "revenue": [
-                "revenue",
-                "sales",
-                "income"
-            ],
-            "cost": [
-                "cost",
-                "expense"
-            ]
+            "revenue": ["revenue", "sales", "income"],
+            "cost": ["cost", "expense"],
         }
-    }
+    },
 }
 
 
@@ -49,17 +32,9 @@ def detect_business_schema(df, question):
 
     question = question.lower()
 
-    numeric_cols = (
-        df.select_dtypes(include="number")
-        .columns
-        .tolist()
-    )
+    numeric_cols = df.select_dtypes(include="number").columns.tolist()
 
-    categorical_cols = (
-        df.select_dtypes(exclude="number")
-        .columns
-        .tolist()
-    )
+    categorical_cols = df.select_dtypes(exclude="number").columns.tolist()
 
     datetime_cols = []
 
@@ -69,9 +44,7 @@ def detect_business_schema(df, question):
 
             parsed = df[col].astype(str)
 
-            if parsed.str.contains(
-                r"\d{4}-\d{2}-\d{2}"
-            ).any():
+            if parsed.str.contains(r"\d{4}-\d{2}-\d{2}").any():
 
                 datetime_cols.append(col)
 
@@ -113,22 +86,18 @@ def detect_business_schema(df, question):
         if metric_name in question:
 
             revenue_col = find_matching_column(
-                numeric_cols,
-                config["required_keywords"]["revenue"]
+                numeric_cols, config["required_keywords"]["revenue"]
             )
 
             cost_col = find_matching_column(
-                numeric_cols,
-                config["required_keywords"]["cost"]
+                numeric_cols, config["required_keywords"]["cost"]
             )
 
             if revenue_col and cost_col:
 
                 if metric_name == "profit":
 
-                    df["profit"] = (
-                        df[revenue_col] - df[cost_col]
-                    )
+                    df["profit"] = df[revenue_col] - df[cost_col]
 
                     metric_col = "profit"
 
@@ -136,11 +105,7 @@ def detect_business_schema(df, question):
 
                 elif metric_name == "margin":
 
-                    df["margin"] = (
-                        (
-                            df[revenue_col] - df[cost_col]
-                        ) / df[revenue_col]
-                    )
+                    df["margin"] = (df[revenue_col] - df[cost_col]) / df[revenue_col]
 
                     metric_col = "margin"
 
@@ -154,14 +119,7 @@ def detect_business_schema(df, question):
 
     if not metric_col and numeric_cols:
 
-        metric_priority = [
-            "sales",
-            "revenue",
-            "profit",
-            "amount",
-            "quantity",
-            "orders"
-        ]
+        metric_priority = ["sales", "revenue", "profit", "amount", "quantity", "orders"]
 
         for keyword in metric_priority:
 
@@ -191,7 +149,7 @@ def detect_business_schema(df, question):
             "category",
             "segment",
             "department",
-            "city"
+            "city",
         ]
 
         for keyword in dimension_priority:
@@ -211,16 +169,10 @@ def detect_business_schema(df, question):
         dimension_col = categorical_cols[0]
 
     return {
-
         "metric_column": metric_col,
-
         "dimension_column": dimension_col,
-
         "datetime_columns": datetime_cols,
-
         "numeric_columns": numeric_cols,
-
         "categorical_columns": categorical_cols,
-
-        "derived_metric": derived_metric
+        "derived_metric": derived_metric,
     }

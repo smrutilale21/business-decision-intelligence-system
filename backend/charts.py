@@ -1,22 +1,14 @@
-import uuid
 import os
+import uuid
 
 import matplotlib.pyplot as plt
-
 from schema_detector import detect_business_schema
-
-from tools import (
-    determine_aggregation,
-    determine_chart_type
-)
+from tools import determine_aggregation, determine_chart_type
 
 
 def generate_chart(df, question):
 
-    schema = detect_business_schema(
-        df,
-        question
-    )
+    schema = detect_business_schema(df, question)
 
     metric_col = schema["metric_column"]
 
@@ -24,21 +16,12 @@ def generate_chart(df, question):
 
     datetime_cols = schema["datetime_columns"]
 
-    aggregation = determine_aggregation(
-        question
-    )
+    aggregation = determine_aggregation(question)
 
-    chart_type = determine_chart_type(
-        question,
-        datetime_cols,
-        dimension_col
-    )
+    chart_type = determine_chart_type(question, datetime_cols, dimension_col)
 
     # Prevent invalid pie charts for negative values
-    if (
-        chart_type == "pie"
-        and (df[metric_col] < 0).any()
-    ):
+    if chart_type == "pie" and (df[metric_col] < 0).any():
         chart_type = "bar"
 
     if not metric_col:
@@ -60,9 +43,7 @@ def generate_chart(df, question):
 
         date_col = datetime_cols[0]
 
-        grouped = (
-            df.groupby(date_col)[metric_col]
-        )
+        grouped = df.groupby(date_col)[metric_col]
 
         if aggregation == "sum":
             grouped = grouped.sum()
@@ -75,9 +56,7 @@ def generate_chart(df, question):
 
         grouped.plot(kind="line")
 
-        plt.title(
-            f"{metric_col} Trend"
-        )
+        plt.title(f"{metric_col} Trend")
 
     # -----------------------------------
     # PIE CHART
@@ -96,9 +75,7 @@ def generate_chart(df, question):
 
         plt.ylabel("")
 
-        plt.title(
-            f"{metric_col} Distribution"
-        )
+        plt.title(f"{metric_col} Distribution")
 
     # -----------------------------------
     # BAR CHART
@@ -106,9 +83,7 @@ def generate_chart(df, question):
 
     elif dimension_col:
 
-        grouped = (
-            df.groupby(dimension_col)[metric_col]
-        )
+        grouped = df.groupby(dimension_col)[metric_col]
 
         if aggregation == "sum":
             grouped = grouped.sum()
@@ -119,17 +94,11 @@ def generate_chart(df, question):
         elif aggregation == "count":
             grouped = grouped.count()
 
-        grouped = (
-            grouped
-            .sort_values(ascending=False)
-            .head(10)
-        )
+        grouped = grouped.sort_values(ascending=False).head(10)
 
         grouped.plot(kind="bar")
 
-        plt.title(
-            f"{metric_col} by {dimension_col}"
-        )
+        plt.title(f"{metric_col} by {dimension_col}")
 
     else:
         return None
