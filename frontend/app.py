@@ -196,6 +196,7 @@ if analyze_button:
                 BACKEND_URL,
                 files=files,
                 data={"question": question},
+                timeout=180,
             )
 
             result = response.json()
