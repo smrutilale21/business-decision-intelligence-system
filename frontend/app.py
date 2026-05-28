@@ -244,7 +244,7 @@ if st.session_state.analysis_data is not None:
 
         for item in data["data_insights"]:
             st.markdown(
-                f'<div class="insight-card">✅ {item}</div>',
+                f'<div class="insight-card"> {item}</div>',
                 unsafe_allow_html=True,
             )
 
@@ -257,7 +257,7 @@ if st.session_state.analysis_data is not None:
 
         for item in data["probable_causes"]:
             st.markdown(
-                f'<div class="insight-card">⚠️ {item}</div>',
+                f'<div class="insight-card"> {item}</div>',
                 unsafe_allow_html=True,
             )
 
@@ -268,14 +268,14 @@ if st.session_state.analysis_data is not None:
 
     for item in data["recommendations"]:
         st.markdown(
-            f'<div class="insight-card">🚀 {item}</div>',
+            f'<div class="insight-card"> {item}</div>',
             unsafe_allow_html=True,
         )
 
     with st.expander("📑 Supporting Evidence"):
         for item in data["evidence"]:
             st.markdown(
-                f'<div class="insight-card">📌 {item}</div>',
+                f'<div class="insight-card"> {item}</div>',
                 unsafe_allow_html=True,
             )
 
