@@ -80,6 +80,7 @@ async def analyze(
             "response": response,
             "chart_url": chart_url,
             "retrieved_context": retrieved_context,
+            "analysis_status": "Completed",
         }
 
     except Exception as e:

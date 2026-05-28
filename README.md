@@ -16,6 +16,20 @@ to help businesses make intelligent data-driven decisions using both structured 
 
 ---
 
+# 🌐 Live Demo
+
+## Frontend
+https://business-decision-intelligence-system.streamlit.app/
+
+## Backend API
+https://business-decision-intelligence-system.onrender.com/analyze
+
+## Swagger Docs
+https://business-decision-intelligence-system.onrender.com/docs
+
+--- 
+
+
 # 🚀 Features
 
 # ✅ AI Business Analysis
@@ -109,6 +123,22 @@ Examples:
 
 ---
 
+# ✅ Downloadable Business Reports
+
+Generate and download AI-powered business analysis reports including:
+
+- Business Problems
+- Data Insights
+- Probable Causes
+- Recommendations
+- Evidence
+- Priority Assessment
+- Confidence Score
+
+Reports can be exported directly from the Streamlit interface for business documentation and sharing.
+
+---
+
 # ✅ RAG (Retrieval-Augmented Generation)
 
 Upload:
@@ -170,7 +200,7 @@ using structured LLM outputs with Pydantic models.
          └──────────────┬────────────────────┘
                         ▼
               ┌──────────────────┐
-              │ OpenAI GPT-4o    │
+              │    OpenAI LLM    │
               └──────────────────┘
                         │
                         ▼
@@ -307,6 +337,15 @@ Create `.env` file inside `backend/`
 OPENAI_API_KEY=your_openai_api_key
 ```
 
+## 6️⃣ Frontend Environment Variable
+
+For Streamlit deployment, add:
+
+```env
+BACKEND_URL=https://business-decision-intelligence-system.onrender.com/analyze
+```
+
+
 ---
 
 # ▶️ Run Backend
@@ -349,18 +388,6 @@ streamlit run app.py
 
 ---
 
-# 🌐 Live Demo
-
-## Frontend
-https://business-decision-intelligence-system.streamlit.app/
-
-## Backend API
-https://business-decision-intelligence-system.onrender.com/analyze
-
-## Swagger Docs
-https://business-decision-intelligence-system.onrender.com/docs
-
----
 
 # 📸 Screenshots
 
@@ -383,7 +410,7 @@ https://business-decision-intelligence-system.onrender.com/docs
 ## 🔹 Dynamic Visualizations
 
 ```md
-![Charts](screenshots/charts.png)
+![Charts](screenshots/charts_and_json_download.png)
 ```
 
 ---
